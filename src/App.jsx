@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import { nanoid } from "nanoid";
 
@@ -6,23 +6,9 @@ import { ExpenseList } from "./components/ExpenseList";
 import { ExpenseForm } from "./components/ExpenseForm";
 import { Alert } from "./components/Alert";
 
-const initialExpenses = [
-  {
-    id: nanoid(),
-    charge: "rent",
-    amount: 1600,
-  },
-  {
-    id: nanoid(),
-    charge: "car payment",
-    amount: 400,
-  },
-  {
-    id: nanoid(),
-    charge: "credit card bill",
-    amount: 1600,
-  },
-];
+const initialExpenses = localStorage.getItem("expenses")
+  ? JSON.parse(localStorage.getItem("expenses"))
+  : [];
 
 function App() {
   // state values
@@ -40,9 +26,15 @@ function App() {
 
   // edit
   const [edit, setEdit] = useState(false);
-  //edit item
 
+  //edit item
   const [id, setId] = useState(0);
+
+  // useEffect
+  useEffect(() => {
+    console.log(`we called use effect`);
+    localStorage.setItem("expenses", JSON.stringify(expenses));
+  }, [expenses]); // calling useEffect when expenses value changes
 
   // functionality
   //handle charge
@@ -74,6 +66,7 @@ function App() {
         });
         setExpenses(tempExpenses);
         setEdit(false);
+        handleAlert({ type: "success", text: "item edited successfully!" });
       } else {
         const singleExpense = { id: nanoid(), charge, amount };
         setExpenses([...expenses, singleExpense]);
@@ -89,7 +82,6 @@ function App() {
 
   // Clear all items
   const clearItems = () => {
-    console.log(`cleared all items`);
     setExpenses([]);
     handleAlert({ type: "danger", text: "all items deleted" });
   };
